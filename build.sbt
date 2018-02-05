@@ -1,6 +1,6 @@
 name := "http4s-request-logging"
 
-val Http4sVersion  = "0.18.0-M9"
+val Http4sVersion  = "0.18.0"
 
 lazy val root = (project in file("."))
   .settings(
