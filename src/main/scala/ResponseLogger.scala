@@ -17,7 +17,7 @@ import scala.concurrent.ExecutionContext
 object ResponseLogger {
   type Logformat[F[_]] = (Request[F], Response[F], Long) => String
 
-  def CommonLogFormat[F[_]](userextractor: Request[F] => String = {_: Request[F] => "-"}): Logformat[F] = (req: Request[F], resp: Response[F], respsize: Long) =>  {
+  def CommonLogFormat[F[_]](vhost: Boolean = false, combined: Boolean = false, userextractor: Request[F] => String = {_: Request[F] => "-"}): Logformat[F] = (req: Request[F], resp: Response[F], respsize: Long) =>  {
     val remote = req.remoteAddr.getOrElse("-")
     val ident = "-"
     val userid = userextractor(req)
@@ -25,21 +25,15 @@ object ResponseLogger {
     val request = s"${req.method.name} ${req.pathInfo} ${req.httpVersion}"
     val code = resp.status.code
     val bytes = respsize
-    s"""$remote $ident $userid [$date] "$request" $code $bytes"""
+    val referer = req.headers.get(CaseInsensitiveString("referer")).getOrElse("-")
+    val useragent = req.headers.get(CaseInsensitiveString("user-agent")).getOrElse("-")
+    val virtualhost: String = req.serverAddr
+
+    // build it up
+    s"""${if (vhost) virtualhost + " " else ""}$remote $ident $userid [$date] "$request" $code $bytes""" + { if (combined) s""""$referer $useragent"""" else "" }
   }
 
-  def CombinedLogFormat[F[_]](userextractor: Request[F] => String = {_: Request[F] => "-"}): Logformat[F] = (req: Request[F], resp: Response[F], respsize: Long) =>  {
-    val remote = req.remoteAddr.getOrElse("-")
-    val ident = "-"
-    val userid = userextractor(req)
-    val date = DateTimeFormatter.ofPattern("dd/MMM/YYYY:HH:mm/ss ZZZZ").format(ZonedDateTime.now())
-    val request = s"${req.method.name} ${req.pathInfo} ${req.httpVersion}"
-    val code = resp.status.code
-    val bytes = respsize
-    val referer = req.headers.get(CaseInsensitiveString("referer")).map("\""+_+"\"").getOrElse("-")
-    val useragent = req.headers.get(CaseInsensitiveString("user-agent")).map("\""+_+"\"").getOrElse("-")
-    s"""$remote $ident $userid [$date] "$request" $code $bytes $referer $useragent"""
-  }
+  def CombinedLogFormat[F[_]](vhost: Boolean = false, userextractor: Request[F] => String = {_: Request[F] => "-"}): Logformat[F] = CommonLogFormat[F](vhost, combined = true, userextractor = userextractor)
 
   private[this] val logger = getLogger
 
