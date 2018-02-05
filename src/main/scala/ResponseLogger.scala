@@ -30,7 +30,7 @@ object ResponseLogger {
     val virtualhost: String = req.serverAddr
 
     // build it up
-    s"""${if (vhost) virtualhost + " " else ""}$remote $ident $userid [$date] "$request" $code $bytes""" + { if (combined) s""""$referer $useragent"""" else "" }
+    s"""${if (vhost) virtualhost + " " else ""}$remote $ident $userid [$date] "$request" $code $bytes""" + { if (combined) s""" "$referer" "$useragent"""" else "" }
   }
 
   def CombinedLogFormat[F[_]](vhost: Boolean = false, userextractor: Request[F] => String = {_: Request[F] => "-"}): Logformat[F] = CommonLogFormat[F](vhost, combined = true, userextractor = userextractor)
