@@ -1,3 +1,5 @@
+package net.andimiller.http4s.logger
+
 import java.time.{Instant, LocalDateTime, ZonedDateTime}
 import java.time.format.DateTimeFormatter
 
@@ -16,7 +18,7 @@ import scala.concurrent.ExecutionContext
 /**
   * Adapted from the Response logging middleware found in org.http4s.server.middleware
   */
-object ResponseLogger {
+object ResponseLoggers {
   type Logformat[F[_]] = (Request[F], Response[F], Long) => String
 
   def CommonLogFormat[F[_]](vhost: Boolean = false, combined: Boolean = false, userextractor: Request[F] => String = { _: Request[F] =>
