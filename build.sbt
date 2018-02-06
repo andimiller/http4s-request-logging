@@ -1,6 +1,7 @@
 name := "http4s-request-logging"
 
 val Http4sVersion  = "0.18.0"
+val CirceVersion   = "0.9.1"
 
 lazy val root = (project in file("."))
   .settings(
@@ -10,6 +11,7 @@ lazy val root = (project in file("."))
     scalaVersion := "2.12.4",
     libraryDependencies ++= Seq(
       "org.http4s"           %% "http4s-dsl"          % Http4sVersion,
-      "org.http4s"           %% "http4s-blaze-server" % Http4sVersion
+      "org.http4s"           %% "http4s-blaze-server" % Http4sVersion,
+      "org.http4s"           %% "http4s-circe"        % Http4sVersion
     )
   )

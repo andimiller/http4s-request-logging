@@ -18,6 +18,6 @@ object HelloWorldServer extends StreamApp[IO] with Http4sDsl[IO] {
   def stream(args: List[String], requestShutdown: IO[Unit]) =
     BlazeBuilder[IO]
       .bindHttp(8080, "0.0.0.0")
-      .mountService(ResponseLogger(ResponseLogger.CombinedLogFormat[IO](), stdout)(service), "/")
+      .mountService(ResponseLogger(ResponseLogger.JsonLogFormat[IO](), stdout)(service), "/")
       .serve
 }
