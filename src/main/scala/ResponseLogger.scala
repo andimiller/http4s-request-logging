@@ -58,19 +58,21 @@ object ResponseLoggers {
         req.remoteAddr.fold(Json.obj()) { s =>
           Json.obj("remote" -> Json.fromString(s))
         },
-        Json.obj("date"    -> Json.fromString(DateTimeFormatter.ISO_DATE_TIME.format(ZonedDateTime.now()))),
-        Json.obj("verb"    -> Json.fromString(req.method.name)),
-        Json.obj("path"    -> Json.fromString(req.pathInfo)),
-        Json.obj("headers" -> Json.fromFields(req.headers.toList.map(h => (h.name.value, Json.fromString(h.value))))),
-        Json.obj("server"  -> Json.fromString(req.serverAddr))
+        Json.obj(
+          "date"    -> Json.fromString(DateTimeFormatter.ISO_DATE_TIME.format(ZonedDateTime.now())),
+          "verb"    -> Json.fromString(req.method.name),
+          "path"    -> Json.fromString(req.pathInfo),
+          "headers" -> Json.fromFields(req.headers.toList.map(h => (h.name.value, Json.fromString(h.value)))),
+          "server"  -> Json.fromString(req.serverAddr)
+        )
       ).reduce(_.deepMerge(_))
       // response
-      val respStats = List(
-        Json.obj("code"    -> Json.fromInt(resp.status.code)),
-        Json.obj("reason"  -> Json.fromString(resp.status.reason)),
-        Json.obj("headers" -> Json.fromFields(resp.headers.toList.map(h => (h.name.value, Json.fromString(h.value))))),
-        Json.obj("size"    -> Json.fromLong(repsize))
-      ).reduce(_.deepMerge(_))
+      val respStats = Json.obj(
+        "code"    -> Json.fromInt(resp.status.code),
+        "reason"  -> Json.fromString(resp.status.reason),
+        "headers" -> Json.fromFields(resp.headers.toList.map(h => (h.name.value, Json.fromString(h.value)))),
+        "size"    -> Json.fromLong(repsize)
+      )
       Json
         .obj(
           "request"  -> reqStats,
